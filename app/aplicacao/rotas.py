@@ -1,5 +1,5 @@
-from flask import request, jsonify
-from aplicacao import app, db
+from flask import request, jsonify, current_app as app
+from aplicacao import db
 from aplicacao.modelos import Produto
 
 @app.route("/produtos", methods=["POST"])
@@ -41,7 +41,7 @@ def remover_produto(produto_id):
         return jsonify({"mensagem": "Produto não encontrado"}), 404
     db.session.delete(produto)
     db.session.commit()
-    return jsonify({"mensagem": "Produto removido"})
+    return "", 204
 
 @app.route("/produtos", methods=["DELETE"])
 def remover_todos_produtos():

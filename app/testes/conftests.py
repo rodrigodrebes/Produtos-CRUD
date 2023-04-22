@@ -1,14 +1,38 @@
-import os
-import sys
-
-aplicacao_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'aplicacao')
-sys.path.append(aplicacao_path)
-
 import pytest
-from aplicacao import app as _app
+from aplicacao import create_app, db
 
-@pytest.fixture(scope='module')
-def app():
-    _app.config['TESTING'] = True
-    _app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:' # cria um banco de dados somente na memória para os testes
-    return _app
+@pytest.fixture(scope="module")
+def test_app():
+    app = create_app()
+    app.config["TESTING"] = True
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+
+    with app.app_context():
+        yield app
+
+@pytest.fixture(scope="module")
+def test_db(test_app):
+    db.create_all()
+    yield db
+    db.drop_all()
+
+@pytest.fixture(scope="module")
+def test_app():
+    app = create_app()
+    app.config["TESTING"] = True
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+
+    with app.app_context():
+        yield app
+
+@pytest.fixture(scope="module")
+def test_db(test_app):
+    db.create_all()
+    yield db
+    db.drop_all()
+
+@pytest.fixture(scope="module")
+def test_client(test_app):
+    with test_app.test_client() as client:
+        yield client
+

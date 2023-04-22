@@ -9,11 +9,11 @@ novo_produto = {"nome": "Produto Teste", "categoria": "Categoria Teste", "preco"
 response = requests.post(f"{base_url}/produtos", json=novo_produto)
 print("POST /produtos:", response.json())
 
-"""# Testando GET para obter um produto específico
-produto_id = response.json()["id"]
+# Testando GET para obter um produto específico
+produto_id = 3
 response = requests.get(f"{base_url}/produtos/{produto_id}")
 print(f"GET /produtos/{produto_id}:", response.json())
- """
+
 # Testando GET para listar todos os produtos
 response = requests.get(f"{base_url}/produtos")
 print("GET /produtos:", response.json())

@@ -1,37 +1,68 @@
-import json
-import pytest
-from aplicacao import app, db
+import os
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+
 from aplicacao.modelos import Produto
+from aplicacao import db
+import json
+from flask import url_for, current_app as app
+from aplicacao.modelos import Produto
+from conftests import test_app, test_db, test_client
 
-@pytest.fixture(scope='function')
-def client(app, db_setup):
-    with app.test_client() as client:
-        yield client
+def adicionar_produto_teste(test_client):
+    data = {
+        "nome": "Produto Teste",
+        "categoria": "Teste",
+        "preco": 50.0
+    }
+    return test_client.post("/produtos", data=json.dumps(data), content_type="application/json")
 
-@pytest.fixture(scope='module')
-def db_setup(app):
-    with app.app_context():
-        db.create_all()
-    yield
-    with app.app_context():
-        db.drop_all()
-
-def test_adicionar_produto(client):
-    novo_produto = {"nome": "Produto Teste", "categoria": "Categoria Teste", "preco": 100.0}
-    response = client.post("/produtos", json=novo_produto)
+def test_adicionar_produto(test_client):
+    data = {
+        "nome": "Produto Teste",
+        "categoria": "Teste",
+        "preco": 50.0
+    }
+    response = test_client.post("/produtos", data=json.dumps(data), content_type="application/json")
     assert response.status_code == 201
-    assert b"Produto adicionado" in response.data
+    assert "id" in response.json
 
-# Restante dos testes
+def test_atualizar_produto(test_client):
+    response = adicionar_produto_teste(test_client)
+    produto_id = response.json["id"]
 
-def test_obter_produto(client):
-    produto = Produto(nome="Teste", categoria="Categoria teste", preco=10.0)
-    with app.app_context():
-        db.session.add(produto)
-        db.session.commit()
-        produto_id = produto.id
-    response = client.get(f'/produtos/{produto_id}')
+    data = {
+        "nome": "Produto Atualizado",
+        "categoria": "Atualizado",
+        "preco": 60.0
+    }
+    response = test_client.put(f"/produtos/{produto_id}", data=json.dumps(data), content_type="application/json")
     assert response.status_code == 200
-    assert b"Teste" in response.data
+    assert "mensagem" in response.json
 
-# Demais testes
+def test_obter_produto(test_client):
+    response = adicionar_produto_teste(test_client)
+    produto_id = response.json["id"]
+
+    response = test_client.get(f"/produtos/{produto_id}")
+    assert response.status_code == 200
+    assert "Produto Teste" in response.get_data(as_text=True)
+
+def test_remover_produto(test_client):
+    response = adicionar_produto_teste(test_client)
+    produto_id = response.json["id"]
+
+    response = test_client.delete(f"/produtos/{produto_id}")
+    assert response.status_code == 204
+
+def test_listar_produtos(test_client):
+    response = test_client.get("/produtos")
+    assert response.status_code == 200
+
+def test_produto_nao_encontrado(test_client):
+    response = test_client.get("/produtos/100")
+    assert response.status_code == 404
+
+
+#python -m pytest test_app_pytest.py
