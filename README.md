@@ -60,9 +60,8 @@ executar.py: Script para executar a aplicação.
 <b>UTILIZAÇÃO </b> 
 
 
-Instale as dependências necessárias usando pip:
+Instale as dependências necessárias usando pip
 
-pip install -r requirements.txt
 
 Crie o banco de dados e as tabelas necessárias executando o script createdatabase.py:
 
