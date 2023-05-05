@@ -54,6 +54,7 @@ O projeto está estruturado da seguinte forma:
 5. Execute os testes:
 
 pytest app/testes/test_app.py
+
 python app/testes/test_requests.py
 
 
