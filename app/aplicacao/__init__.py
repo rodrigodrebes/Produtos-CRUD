@@ -11,3 +11,5 @@ def create_app():
     with app.app_context():
         from aplicacao import rotas
     return app
+
+app = create_app()
